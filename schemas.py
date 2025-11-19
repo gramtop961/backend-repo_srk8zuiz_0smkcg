@@ -2,47 +2,46 @@
 Database Schemas
 
 Define your MongoDB collection schemas here using Pydantic models.
-These schemas are used for data validation in your application.
-
 Each Pydantic model represents a collection in your database.
-Model name is converted to lowercase for the collection name:
-- User -> "user" collection
-- Product -> "product" collection
-- BlogPost -> "blogs" collection
+Class name is converted to lowercase for the collection name.
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 
-# Example schemas (replace with your own):
 
 class User(BaseModel):
-    """
-    Users collection schema
-    Collection name: "user" (lowercase of class name)
-    """
     name: str = Field(..., description="Full name")
     email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
+    address: Optional[str] = Field(None, description="Address")
     age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
     is_active: bool = Field(True, description="Whether user is active")
 
-class Product(BaseModel):
-    """
-    Products collection schema
-    Collection name: "product" (lowercase of class name)
-    """
-    title: str = Field(..., description="Product title")
-    description: Optional[str] = Field(None, description="Product description")
-    price: float = Field(..., ge=0, description="Price in dollars")
-    category: str = Field(..., description="Product category")
-    in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
+class Firmware(BaseModel):
+    soc: str = Field(..., description="qualcomm | mtk | exynos")
+    oem: str = Field(..., description="OEM name, e.g., Google, Samsung, Xiaomi")
+    model: str = Field(..., description="Device model, e.g., SM-S921B, Pixel 9 Pro")
+    android_version: str = Field(..., description="Android version: 14 | 15 | 16")
+    build_number: Optional[str] = Field(None, description="Build number")
+    channel: Optional[str] = Field(None, description="stable | beta | dev")
+    url: Optional[str] = Field(None, description="Official/OEM download URL")
+    checksum_sha256: Optional[str] = Field(None, description="OEM-provided SHA256 checksum")
+    notes: Optional[str] = Field(None, description="Notes / changelog")
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+
+class Consent(BaseModel):
+    customer_name: str
+    device_model: str
+    android_version: Optional[str] = None
+    operations: List[str] = []
+    checklist_confirmed: bool = False
+    signature: Optional[str] = None
+
+
+class Job(BaseModel):
+    kind: str = Field(..., description="diagnostic | backup | guidance")
+    device_model: Optional[str] = None
+    android_version: Optional[str] = None
+    status: str = Field("queued", description="queued | in_progress | done | failed")
+    notes: Optional[str] = None
